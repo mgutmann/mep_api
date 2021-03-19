@@ -36,8 +36,10 @@ class mep:
         self.country = country_and_party.split("-")[0].strip()
         self.national_party = country_and_party.split(
             "-")[1].split("(")[0].strip()
+        self.history = [link.text[0] for link in self.home_soup.find_all("span", class_="t-x") if "parliamentary term" in link.text]
         self.socials = {element.text.strip(): element["href"] for element in self.home_soup.find_all(
             "a", attrs={"data-toggle": "tooltip"}) if element['class'] != ['mr-1', 'ml-1', 'mr-sm-2', 'ml-sm-0', 'mb-2']}
+        self.socials["E-mail"] = self.socials["E-mail"][::-1].replace("]ta[", "@").replace("]tod[", ".")[:-9]+"eu"
         self.birthdate = self.home_soup.find(
             "time", class_="sln-birth-date").text.strip()
         self.birthplace = self.home_soup.find(
@@ -84,7 +86,7 @@ class mep:
                 'role': meeting.find("div", class_="erpl_report mt-1 mb-25"),
                 'committee': meeting.find("a", class_="erpl_badge erpl_badge-committee"),
                 'subject': meeting.find("div", class_="erpl_report mt-1 mb-25"),
-                'interest_group': meeting.find("div", class_="erpl_rapporteur mb-25").text.strip()
+                'interest_group': [element.rstrip(",") for element in meeting.find("div", class_="erpl_rapporteur mb-25").text.strip().split("\xa0\n\t\t\t\t\t\n\t\t\t\t\t\t")]
             } for meeting in page_meetings_soup]
             for meeting in page_meetings_list:
                 if meeting['committee'] != None:
@@ -99,20 +101,11 @@ class mep:
             i += 1
             self.meetings = meeting_list
 
-    def get_history(self):
-        accordions = self.home_soup.find_all("span", class_="t-x")
-        mep_history = 0
-        for link in accordions:
-            if "parliamentary term" in link.text:
-                mep_history += 1
-        self.history = mep_history
-
     def scrape_all(self):
         self.get_personal_data()
         self.get_committees()
         self.get_assistants()
         self.get_meetings()
-        self.get_history()
 
     def to_json(self, outfile=None):
         data = {
