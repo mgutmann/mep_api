@@ -25,5 +25,5 @@ mep1.scrape_all()
 You can then either get a JSON string containing all of the MEP's information and write to a file by running:
 ```python
 mep1.to_json() #returns JSON string
-mep1.ti_json("file.json") #writes json file to specified path
+mep1.to_json("file.json") #writes json file to specified path
 ```
