@@ -8,8 +8,9 @@ pip install git+https://github.com/mgutmann/mep_api
 ```
 
 ### Usage
-To create an MEP object pass the URL of an MEP's EP home page. For instance:
+To create an MEP object, import the package pass the URL of an MEP's EP home page. For instance:
 ```python
+import mep_api
 mep1 = mep_api.mep("https://www.europarl.europa.eu/meps/en/113892/ERIC_ANDRIEU/home")
 ```
 Then you can add the information you want to the object:
