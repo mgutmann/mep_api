@@ -125,7 +125,7 @@ class mep:
             "meetings": self.meetings,
             "history": self.history
         }
-        data_json = data.dumps(data, ensure_ascii=False)
+        data_json = json.dumps(data, ensure_ascii=False)
         if outfile == None:
             return data_json
         else:
