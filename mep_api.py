@@ -125,7 +125,9 @@ class mep:
             "meetings": self.meetings,
             "history": self.history
         }
+        data_json = data.dumps(data, ensure_ascii=False)
         if outfile == None:
-            return data
-        with open(outfile, 'w+', encoding="utf-8") as budget_json:
-            budget_json.write(json.dumps(data, ensure_ascii=False))
+            return data_json
+        else:
+            with open(outfile, 'w+', encoding="utf-8") as budget_json:
+                budget_json.write(data_json)
