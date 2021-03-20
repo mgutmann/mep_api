@@ -13,5 +13,4 @@ setup(
    url="http://www.github.com/mgutmann/mep_api",
    packages=['mep_api'],  #same as name
    install_requires=['requests', 'beautifulsoup4'], #external packages as dependencies
-   scripts=[mep_api]
 )
