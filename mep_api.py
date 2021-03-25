@@ -5,11 +5,15 @@ import json
 
 class mep:
 
-    def __init__(self, url):
-        self.url = url
+    def __init__(self, url, name=None):
+        try:
+            home_r = requests.get(url)
+            home_r.encoding = "utf-8"
+        except Exception as error:
+            return error
+        self.url = home_r.url
         self.parl_id = self.url.split("/")[5]
         self.meetings = None
-        self.name = None
         self.eu_party = None
         self.country = None
         self.national_party = None
@@ -19,11 +23,6 @@ class mep:
         self.committees = None
         self.assistants = None
         self.history = None
-        try:
-            home_r = requests.get(self.url)
-            home_r.encoding = "utf-8"
-        except Exception as error:
-            return error
         self.home_soup = BeautifulSoup(home_r.content, "html.parser")
 
     def get_personal_data(self):
