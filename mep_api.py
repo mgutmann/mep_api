@@ -41,9 +41,13 @@ class mep:
             "a", attrs={"data-toggle": "tooltip"}) if element['class'] != ['mr-1', 'ml-1', 'mr-sm-2', 'ml-sm-0', 'mb-2']}
         self.socials["E-mail"] = self.socials["E-mail"][::-1].replace("]ta[", "@").replace("]tod[", ".")[:-9]+"eu"
         self.birthdate = self.home_soup.find(
-            "time", class_="sln-birth-date").text.strip()
+            "time", class_="sln-birth-date")
+        if self.birthdate != None:
+            self.birthdate = self.birthdate.text.strip()
         self.birthplace = self.home_soup.find(
-            "span", class_="sln-birth-place").text.strip()
+            "span", class_="sln-birth-place")
+        if self.birthplace != None:
+            self.birthplace = self.birthplace.text.strip()
 
     def get_committees(self):
         committees = self.home_soup.find_all("div", class_="erpl_meps-status")
@@ -86,11 +90,13 @@ class mep:
                 'role': meeting.find("div", class_="erpl_report mt-1 mb-25"),
                 'committee': meeting.find("a", class_="erpl_badge erpl_badge-committee"),
                 'subject': meeting.find("div", class_="erpl_report mt-1 mb-25"),
-                'interest_group': [element.rstrip(",") for element in meeting.find("div", class_="erpl_rapporteur mb-25").text.strip().split("\xa0\n\t\t\t\t\t\n\t\t\t\t\t\t")]
+                'interest_group': meeting.find("div", class_="erpl_rapporteur mb-25")
             } for meeting in page_meetings_soup]
             for meeting in page_meetings_list:
                 if meeting['committee'] != None:
                     meeting['committee'] = meeting['committee'].text.strip()
+                if meeting["interest_group"] != None:
+                    meeting["interest_group"] = [element.rstrip(",").strip() for element in meeting["interest_group"].text.split("\xa0\n\t\t\t\t\t\n\t\t\t\t\t\t")]
                 if len(meeting['role'].text.split("-")) > 1:
                     meeting['role'] = meeting['role'].text.split("-")[0].strip()
                     meeting['subject'] = meeting['subject'].text.split("-")[1].strip()
@@ -107,7 +113,7 @@ class mep:
         self.get_assistants()
         self.get_meetings()
 
-    def to_json(self, outfile=None):
+    def to_dict(self):
         data = {
             "url": self.url,
             "id": self.parl_id,
@@ -125,9 +131,39 @@ class mep:
             "meetings": self.meetings,
             "history": self.history
         }
-        data_json = json.dumps(data, ensure_ascii=False)
+        return data
+
+    def to_json(self, outfile=None):
+        data_json = json.dumps(self.to_dict(), ensure_ascii=False)
         if outfile == None:
             return data_json
         else:
             with open(outfile, 'w+', encoding="utf-8") as budget_json:
                 budget_json.write(data_json)
+
+def batch_scrape(url_list, outfile=None):
+    batch = {}
+    progress=1
+    total=len(url_list)
+    for url in url_list:
+        rep = mep(url)
+        rep.scrape_all()
+        batch[str(rep.parl_id)] = rep.to_dict()
+        print(str(progress)+"/"+str(total)+" done")
+        progress += 1
+    batch_json = json.dumps(batch, ensure_ascii=False)
+    if outfile == None:
+        return batch_json
+    else:
+        with open(outfile, "w+", encoding="utf-8") as outjson:
+            outjson.write(batch_json)
+
+def get_mep_urls():
+    try:
+        r = requests.get("https://www.europarl.europa.eu/meps/en/full-list/all")
+    except Exception as error:
+        return error
+    r.encoding = "utf-8"
+    soup = BeautifulSoup(r.content, "html.parser")
+    mep_url_list = [element["href"] for element in soup.find_all("a", class_="erpl_member-list-item-content mb-2 t-y-block")]
+    return mep_url_list
