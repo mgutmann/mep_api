@@ -31,7 +31,7 @@ mep1.to_json() #returns JSON string
 mep1.to_json("file.json") #writes JSON file to specified path
 ```
 
-#### Scraping multiple MEP's information
+#### Scraping multiple MEPs' information
 It is possible to scrape data for multiple MEPs with a single line of code with `batch_scrape()` as follows:
 ```python
 url_list = ["https://www.europarl.europa.eu/meps/en/113892/ERIC_ANDRIEU/home", "https://www.europarl.europa.eu/meps/en/124831/ISABELLA_ADINOLFI/home", "https://www.europarl.europa.eu/meps/en/28161/MARGRETE_AUKEN/home"]
