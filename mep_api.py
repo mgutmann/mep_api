@@ -186,7 +186,7 @@ def scrape_outgoing_meps():
 def batch_scrape(url_list=None, outfile=None, add_outgoing=False):
     batch = {}
     progress=1
-    if url_list != None
+    if url_list != None:
         print("starting to collect data on meps in submitted list")
         total=len(url_list)
         for url in url_list:
@@ -213,4 +213,6 @@ def get_mep_urls():
     r.encoding = "utf-8"
     soup = BeautifulSoup(r.content, "html.parser")
     mep_url_list = [element["href"] for element in soup.find_all("a", class_="erpl_member-list-item-content mb-2 t-y-block")]
+    for element in soup.find_all("a", class_="erpl_member-list-item-content  t-y-block"):
+        mep_url_list.append(element["href"])
     return mep_url_list
