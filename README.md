@@ -38,8 +38,10 @@ url_list = ["https://www.europarl.europa.eu/meps/en/113892/ERIC_ANDRIEU/home", "
 mep_api.batch_scrape(url_list) #return JSON string
 mep_api.batch_scrape(url_list, outfile="file.json") #writes JSON file to specified path
 ```
-The `get_mep_urls()` function returns a list of all MEP home page URLs and makes collecting data on all MEPs at once easy:
+The `get_mep_urls()` function returns a list of all MEP home page URLs and makes collecting data on all MEPs at once easy. It is also possible to scrape available data for so-called "outgoing" MEPs, MEPs who have left the parliament during the current parliamentary term. To do so, it is sufficient to use the `batch_scrape()` function with the argument `add_outgoing = True` which is `False` by default. It is possible not to pass a `url_list` to the function to collect data only on outgoing MEPs. It is however not possible to collect data on single outgoing MEPs as of now.
 ```python
-all_mep_urls = mep_api.get_mep_urls()
-mep_api.batch_scrape(all_mep_urls)
+all_mep_urls = mep_api.get_mep_urls() #creates a list of all MEP URLS
+mep_api.batch_scrape(all_mep_urls) #collects data on all current MEPs
+mep_api.batch_scrape(all_mep_urls, add_outgoing=True) #collects data on all current MEPs and outgoing MEPs
+mep_api.batch_scrape(add_outgoing=True) #collects data on outgoing MEPs
 ```

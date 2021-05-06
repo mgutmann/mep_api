@@ -1,18 +1,23 @@
 import requests
 from bs4 import BeautifulSoup
 import json
+from datetime import datetime
 
 
 class mep:
 
-    def __init__(self, url, name=None):
-        try:
-            home_r = requests.get(url)
-            home_r.encoding = "utf-8"
-        except Exception as error:
-            return error
-        self.url = home_r.url
-        self.parl_id = self.url.split("/")[5]
+    def __init__(self, url=None, name=None, outgoing=False):
+        if url != None:
+            try:
+                home_r = requests.get(url)
+                home_r.encoding = "utf-8"
+            except Exception as error:
+                return error
+            self.url = home_r.url
+            self.parl_id = self.url.split("/")[5]
+            self.home_soup = BeautifulSoup(home_r.content, "html.parser")
+        self.outgoing = outgoing
+        self.outdate = None
         self.meetings = None
         self.eu_party = None
         self.country = None
@@ -23,7 +28,6 @@ class mep:
         self.committees = None
         self.assistants = None
         self.history = None
-        self.home_soup = BeautifulSoup(home_r.content, "html.parser")
 
     def get_personal_data(self):
         self.name = self.home_soup.find(
@@ -128,7 +132,8 @@ class mep:
             "committees": self.committees,
             "assistants": self.assistants,
             "meetings": self.meetings,
-            "history": self.history
+            "history": self.history,
+            "outdate": self.outdate
         }
         return data
 
@@ -140,16 +145,61 @@ class mep:
             with open(outfile, 'w+', encoding="utf-8") as budget_json:
                 budget_json.write(data_json)
 
-def batch_scrape(url_list, outfile=None):
+def scrape_outgoing_meps():
+    r = requests.get("https://www.europarl.europa.eu/meps/en/incoming-outgoing/outgoing")
+    r.encoding = "utf-8"
+    soup = BeautifulSoup(r.content, "html.parser")
+    outgoing_meps = {}
+    reps = soup.find_all("div", class_="col-6 col-sm-4 col-md-3 col-lg-4 col-xl-3 text-center mb-3 erpl_member-list-item a-i")
+    total = str(len(reps))
+    progress=0
+    for rep in reps:
+        newmep = mep(outgoing=True)
+        newmep.name = rep.find("div", class_="erpl_title-h5 t-item").text
+        add_info = rep.find_all("div", class_="sln-additional-info mb-25")
+        newmep.outdate = add_info[0].text.split(" ")[2]
+        newmep.eu_party = add_info[1].text
+        newmep.country = add_info[2].text
+        newmep.nat_party = rep.find("div", class_="sln-additional-info")
+        newmep.url = rep.find("a", class_="erpl_member-list-item-content mb-2 t-y-block")["href"]
+        newmep.parl_id = newmep.url.split("/")[-1]
+        newmep.get_meetings()
+        hist_r = requests.get(newmep.url)
+        hist_r.encoding = "utf-8"
+        hist_soup = BeautifulSoup(hist_r.content, "html.parser")
+        newmep.history = []
+        for ep in hist_soup.find("div", class_="erpl_accordion-item-content a-i-none show").find_all("span", class_="t-x"):
+            newmep.history.append(ep.text.split(" ")[0][0])
+        newmep.birthdate = hist_soup.find(
+            "time", class_="sln-birth-date")
+        if newmep.birthdate != None:
+            newmep.birthdate = newmep.birthdate.text.strip()
+        newmep.birthplace = hist_soup.find(
+            "span", class_="sln-birth-place")
+        if newmep.birthplace != None:
+            newmep.birthplace = newmep.birthplace.text.strip()
+        outgoing_meps[newmep.parl_id] = newmep.to_dict()
+        progress += 1
+        print(str(progress) + "/" + total + " done")
+    return outgoing_meps
+
+def batch_scrape(url_list=None, outfile=None, add_outgoing=False):
     batch = {}
     progress=1
-    total=len(url_list)
-    for url in url_list:
-        rep = mep(url)
-        rep.scrape_all()
-        batch[str(rep.parl_id)] = rep.to_dict()
-        print(str(progress)+"/"+str(total)+" done")
-        progress += 1
+    if url_list != None
+        print("starting to collect data on meps in submitted list")
+        total=len(url_list)
+        for url in url_list:
+            rep = mep(url)
+            rep.scrape_all()
+            batch[str(rep.parl_id)] = rep.to_dict()
+            print(str(progress)+"/"+str(total)+" done")
+            progress += 1
+    if add_outgoing:
+        print("starting to collect data on outgoing meps")
+        outgoing_meps = scrape_outgoing_meps()
+        for rep in outgoing_meps:
+            batch[rep] = outgoing_meps[rep]
     batch_json = json.dumps(batch, ensure_ascii=False)
     if outfile == None:
         return batch_json
@@ -158,10 +208,8 @@ def batch_scrape(url_list, outfile=None):
             outjson.write(batch_json)
 
 def get_mep_urls():
-    try:
-        r = requests.get("https://www.europarl.europa.eu/meps/en/full-list/all")
-    except Exception as error:
-        return error
+    
+    r = requests.get("https://www.europarl.europa.eu/meps/en/full-list/all")
     r.encoding = "utf-8"
     soup = BeautifulSoup(r.content, "html.parser")
     mep_url_list = [element["href"] for element in soup.find_all("a", class_="erpl_member-list-item-content mb-2 t-y-block")]
