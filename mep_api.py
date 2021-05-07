@@ -42,7 +42,10 @@ class mep:
         self.history = [link.text[0] for link in self.home_soup.find_all("span", class_="t-x") if "parliamentary term" in link.text]
         self.socials = {element.text.strip(): element["href"] for element in self.home_soup.find_all(
             "a", attrs={"data-toggle": "tooltip"}) if element['class'] != ['mr-1', 'ml-1', 'mr-sm-2', 'ml-sm-0', 'mb-2']}
-        self.socials["Email"] = self.socials["Email"][::-1].replace("]ta[", "@").replace("]tod[", ".")[:-9]+"eu"
+        if "Email" in self.socials:
+            self.socials["Email"] = self.socials["Email"][::-1].replace("]ta[", "@").replace("]tod[", ".")[:-9]+"eu"
+        elif "E-mail" in self.socials:
+            self.socials["E-mail"] = self.socials["E-mail"][::-1].replace("]ta[", "@").replace("]tod[", ".")[:-9]+"eu"
         self.birthdate = self.home_soup.find(
             "time", class_="sln-birth-date")
         if self.birthdate != None:
