@@ -42,7 +42,7 @@ class mep:
         self.history = [link.text[0] for link in self.home_soup.find_all("span", class_="t-x") if "parliamentary term" in link.text]
         self.socials = {element.text.strip(): element["href"] for element in self.home_soup.find_all(
             "a", attrs={"data-toggle": "tooltip"}) if element['class'] != ['mr-1', 'ml-1', 'mr-sm-2', 'ml-sm-0', 'mb-2']}
-        self.socials["E-mail"] = self.socials["E-mail"][::-1].replace("]ta[", "@").replace("]tod[", ".")[:-9]+"eu"
+        self.socials["Email"] = self.socials["Email"][::-1].replace("]ta[", "@").replace("]tod[", ".")[:-9]+"eu"
         self.birthdate = self.home_soup.find(
             "time", class_="sln-birth-date")
         if self.birthdate != None:
@@ -124,7 +124,7 @@ class mep:
                             "name": self.name,
                             "eu_party": self.eu_party,
                             "country": self.country,
-                            "nat_part": self.national_party,
+                            "nat_party": self.national_party,
                             "social_media": self.socials,
                             "birthdate": self.birthdate,
                             "birthplace": self.birthplace
@@ -158,12 +158,12 @@ def scrape_outgoing_meps():
     for rep in reps:
         newmep = mep(outgoing=True)
         newmep.name = rep.find("div", class_="erpl_title-h5 t-item").text
-        add_info = rep.find_all("div", class_="sln-additional-info mb-25")
+        add_info = rep.find_all("div", class_="sln-additional-info")
         newmep.outdate = add_info[0].text.split(" ")[2]
         eu_party = add_info[1].text
         newmep.eu_party = abrevs[eu_party]
         newmep.country = add_info[2].text
-        newmep.nat_party = rep.find("div", class_="sln-additional-info")
+        newmep.national_party = add_info[3].text
         newmep.url = rep.find("a", class_="erpl_member-list-item-content mb-2 t-y-block")["href"]
         newmep.parl_id = newmep.url.split("/")[-1]
         newmep.get_meetings()
