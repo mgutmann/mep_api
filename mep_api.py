@@ -151,6 +151,8 @@ def scrape_outgoing_meps():
     soup = BeautifulSoup(r.content, "html.parser")
     outgoing_meps = {}
     reps = soup.find_all("div", class_="col-6 col-sm-4 col-md-3 col-lg-4 col-xl-3 text-center mb-3 erpl_member-list-item a-i")
+    with open("resources/euparty_abreviations.json", "r", encoding="utf-8") as abrevfile:
+        abrevs = json.load(abrevfile)
     total = str(len(reps))
     progress=0
     for rep in reps:
@@ -158,7 +160,8 @@ def scrape_outgoing_meps():
         newmep.name = rep.find("div", class_="erpl_title-h5 t-item").text
         add_info = rep.find_all("div", class_="sln-additional-info mb-25")
         newmep.outdate = add_info[0].text.split(" ")[2]
-        newmep.eu_party = add_info[1].text
+        eu_party = add_info[1].text
+        newmep.eu_party = abrevs[eu_party]
         newmep.country = add_info[2].text
         newmep.nat_party = rep.find("div", class_="sln-additional-info")
         newmep.url = rep.find("a", class_="erpl_member-list-item-content mb-2 t-y-block")["href"]
