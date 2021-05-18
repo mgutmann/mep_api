@@ -4,7 +4,7 @@ with open("README.md", 'r') as f:
     long_description = f.read()
 
 setup(
-   name='mep_api_mgutmann',
+   name='mep_api',
    version='0.1',
    description='A web scraping package for data on members of the European Parliament.',
    license="MIT",
