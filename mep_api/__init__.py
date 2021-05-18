@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import json
 from datetime import datetime
+import importlib.resources
 
 
 class mep:
@@ -154,8 +155,11 @@ def scrape_outgoing_meps():
     soup = BeautifulSoup(r.content, "html.parser")
     outgoing_meps = {}
     reps = soup.find_all("div", class_="col-6 col-sm-4 col-md-3 col-lg-4 col-xl-3 text-center mb-3 erpl_member-list-item a-i")
-    with open("resources/euparty_abreviations.json", "r", encoding="utf-8") as abrevfile:
-        abrevs = json.load(abrevfile)
+    import pkgutil
+    
+    with importlib.resources.path("mep_api", "euparty_abreviations.json") as data_path:
+        with open(data_path, "r", encoding="utf-8") as abrevfile:
+            abrevs = json.load(abrevfile)
     total = str(len(reps))
     progress=0
     for rep in reps:

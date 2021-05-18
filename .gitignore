@@ -1,6 +1,7 @@
 venv/
-__pycache__
+__pycache__/
 dist
 build
-mep_api_mgutmann.egg-info
+mep_api.egg-info/
 pyproject.toml
+mep_api/__pychache__/
