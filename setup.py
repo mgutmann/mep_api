@@ -18,6 +18,7 @@ setup(
 	"Licence :: OSI Approved :: MIT License",
 	"Operating System :: OS Independent",
    ],
+   packages=['resources'],
    py_modules=['mep_api'],
    package_data={'resources': 'eu_party_abreviations.json'}
    python_requires=">=3.6",
