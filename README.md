@@ -1,5 +1,5 @@
 # MEP API
-MEP API is a very simple python package to scrape data on members of the European Parliament and outputs it in a neat JSON.
+MEP API is a very simple python package to scrape data on members of the European Parliament and output it in a neat JSON.
 
 ### Installation
 Install this repository with pip:

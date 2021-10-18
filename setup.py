@@ -21,5 +21,5 @@ setup(
    packages=['mep_api'],
    package_data={'mep_api': ['euparty_abreviations.json']},
    python_requires=">=3.7",
-   install_requires=['requests', 'beautifulsoup4'], #external packages as dependencies
+   install_requires=['requests', 'beautifulsoup4', 'tqdm'], #external packages as dependencies
 )
