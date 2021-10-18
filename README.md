@@ -5,7 +5,6 @@ MEP API is a very simple python package to scrape data on members of the Europea
 Install this repository with pip:
 ```
 pip install mep_api
-pip install git+https://github.com/mgutmann/mep_api
 ```
 
 ### Usage
