@@ -219,18 +219,15 @@ def scrape_outgoing_meps():
 # Function to scrape MEP information for all MEPs in a list of MEP URLs
 def batch_scrape(url_list=None, outfile=None, add_outgoing=False):
     batch = {}
-    progress=1
     if url_list != None:
-        print("Starting to collect data on meps in submitted list.")
+        print("Collecting data on meps in submitted list.")
         total=len(url_list)
         for url in tqdm(url_list):
             rep = mep(url)
             rep.scrape_all()
             batch[str(rep.parl_id)] = rep.to_dict()
-            print(str(progress)+"/"+str(total)+" done")
-            progress += 1
     if add_outgoing:
-        print("Starting to collect data on outgoing meps.")
+        print("Collecting data on outgoing meps.")
         outgoing_meps = scrape_outgoing_meps()
         for rep in tqdm(outgoing_meps):
             batch[rep] = outgoing_meps[rep]
